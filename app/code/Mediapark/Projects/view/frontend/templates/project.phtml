@@ -1,0 +1,263 @@
+<?php
+/**
+ * The MIT License (MIT)
+ * Copyright (c) 2019
+ * This source file is subject to The MIT License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/MIT
+ */
+/** @var Mediapark\Projects\Block\Index $indexBlock */
+$indexBlock = $block->getLayout()->createBlock('Mediapark\Projects\Block\Index');
+/** @var Mediapark\Projects\Block\SingleProject $projectBlock */
+$projectBlock = $block->getLayout()->CreateBlock('Mediapark\Projects\Block\SingleProject');
+$project = $projectBlock->getProjectbyId($projectBlock->getProjectIdFromUrl());
+$cartHelper = $this->helper('Magento\Checkout\Helper\Cart');
+?>
+<div>
+    <?php if (array_key_exists('project_name', $project)): ?>
+
+		<h2><span><?= $project['project_name'] ?></span></h2>
+
+
+		<div class="addNewFormGroup">
+			<form action="/projects/customer/projects" method="post">
+				<input name="projectId" type="text" style="display: none"
+				       value="<?= $projectBlock->getProjectIdFromUrl(); ?>">
+				<div class="addNewForm">
+					<div class="addNewFormText"><input name="roomName" type="text" placeholder="New room name"></div>
+					<div class="addNewFormButton"><input class="createNewRoom" type="submit" value="Create new room">
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<form name="listOfProducts" action="/projects/customer/add" method="post">
+
+
+            <?php if (empty(json_decode($project['project_rooms']))): ?>
+				<table class="greyGridTable">
+					<tr>
+						<td colspan="4">
+							There is no created rooms
+						</td>
+					</tr>
+				</table>
+            <?php endif; ?>
+            <?php foreach ($projectBlock->getProjectRooms($project['project_rooms']) as $roomItem): ?>
+				<table class="greyGridTable">
+					<thead>
+					<tr>
+						<td colspan="4">
+                            <?= $roomItem->getData()['room_name']; ?> (<a class="projects-modal-btn"
+							                                              id="<?= $roomItem->getData()['room_id'] ?>"
+							                                              data="room">Delete
+								room</a>)
+						</td>
+					</tr>
+					</thead>
+					<tr>
+						<td style="width: 50%;">Name</td>
+						<td style="width: 16%;">Price</td>
+						<td style="width: 16%;">Qty</td>
+						<td style="width: 16%;"></td>
+					</tr>
+                    <?php foreach ($projectBlock->getRoomItems($roomItem->getData()['room_items']) as $itemKey => $item)
+                        : ?>
+						<tr>
+							<td>
+								<div style="margin-left: 20px">
+									<input name="<?= $itemKey ?>" style="display: none" value="<?= $itemKey ?>">
+									<span><a href="<?= $projectBlock->getLinkToProduct($item["product"]->getData()) ?>"><?= $projectBlock->getName($item["product"]->getData()); ?> </a></span>
+								</div>
+							</td>
+							<td>
+                                <?php $price = $indexBlock->getProductPrice($item) * $item["item"]->getItemQty() ?>
+                                <?php if ($price > 0): ?>
+                                    <?= $price ?>(<?= $indexBlock->getProductPrice($item)
+                                    . "*"
+                                    . $item["item"]->getItemQty(); ?>)
+                                <?php else: ?>
+                                    <?php echo "-" ?>
+                                <?php endif; ?>
+
+							</td>
+							<td>
+                                <?= $item["item"]->getItemQty() ?>
+							</td>
+							<td>
+								<a class="projects-modal-btn" id="<?= $itemKey ?>" data="item">Remove item</a>
+							</td>
+						</tr>
+                    <?php endforeach; ?>
+				</table>
+            <?php endforeach; ?>
+			<div class="addAllProjectToCartBox">
+				<div class="projectTotalPrice ">
+					<div class="totalPriceLabel">Total price:</div>
+					<div>$<?= $indexBlock->getTotalPriceByProjectId($projectBlock->getProjectIdFromUrl()); ?></div>
+				</div>
+				<div class="addAllProjectToCart">
+                    <?php if ($indexBlock->getIsRequestPrice()): ?>
+						<input id="requestPriceButton"
+						       style="background-color: #2789A5;border-color: #2789A5;color: white;padding: 10px;"
+						       class="addAllProjectToCartButton" type="button"
+						       onclick="updateProjectStatus(<?= $projectBlock->getProjectIdFromUrl() ?>)"
+						       value="Запросить цены">
+                    <?php else: ?>
+						<input class="addAllProjectToCartButton" type="submit" value="Добавить проект в корзину">
+                    <?php endif; ?>
+
+				</div>
+			</div>
+		</form>
+
+		<div class="projects-modal">
+			<div class="projects-modal-content">
+				<div style="display: inline">
+					<span class="projects-close-btn">&times;</span>
+				</div>
+				<div style="display: flex;justify-content: center;width: 100%;"><h2>Sure?</h2></div>
+
+				<div style="display: flex;padding-top: 10px;">
+					<input class="projects-close-btn-no" type="button"
+					       style="flex-grow: 1;background-color: #2789A5;color: white;padding: 10px 20px;margin: 10px;"
+					       value="Yes">
+					<input class="projects-close-btn-no" type="button"
+					       style="flex-grow: 1;background-color: #2789A5;color: white;padding: 10px 20px;margin: 10px;"
+					       value="No">
+				</div>
+
+			</div>
+		</div>
+    <?php endif; ?>
+</div>
+
+<script>
+  require([
+    "jquery"
+  ], function (jQuery) {
+    let modalBtn = jQuery(".projects-modal-btn");
+    let modal = jQuery(".projects-modal");
+    let closeBtn = jQuery(".projects-close-btn");
+    let closeBtnNo = jQuery(".projects-close-btn-no");
+
+
+    modalBtn.on("click", function () {
+      console.log("modalBtn clicked");
+      if (modalBtn.attr("data") === "room") {
+        console.log("attr data = " + modalBtn.attr("data"));
+        setDeleteRoomId(parseInt(modalBtn.attr("id")));
+      } else {
+        console.log("attr data = " + modalBtn.attr("data"));
+        setDeleteItemId(parseInt(modalBtn.attr("id")));
+      }
+      modal.show();
+    });
+    closeBtn.on("click", function () {
+      modal.removeAttr("style").hide();
+    });
+    closeBtnNo.on("click", function () {
+      if (closeBtnNo.attr("value") === "Yes") {
+        deleteElem(getDeleteItemId());
+      }
+      modal.removeAttr("style").hide();
+    });
+    jQuery(window).click(function (e) {
+      if ("." + e.target.className == modal.selector) {
+        modal.removeAttr("style").hide();
+      }
+    });
+
+    let deleteItemId = 0;
+    let deleteRoomId = 0;
+    let currentEvent = '';
+
+    function setDeleteItemId(id) {
+      deleteItemId = id;
+      currentEvent = "item";
+    }
+
+    function getDeleteItemId() {
+      return deleteItemId;
+    }
+
+    function setDeleteRoomId(id) {
+      deleteRoomId = id;
+      currentEvent = "room";
+    }
+
+    function getDeleteRoomId() {
+      return deleteRoomId;
+    }
+
+    function deleteElem() {
+      let id;
+      switch (currentEvent) {
+        case 'item':
+          id = deleteItemId;
+          console.log("switch Item" + id);
+          deleteItem(id);
+          break;
+        case 'room':
+          id = deleteRoomId;
+          console.log("switch Room" + id);
+          deleteRoom(id);
+          break;
+      }
+
+    }
+
+    function deleteRoom(roomId) {
+      let url = "/rest/V1/projects/delete-room/" + roomId;
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+          window.location.reload(true);
+        }
+      });
+    }
+
+
+    function deleteItem(itemId) {
+      let url = "/rest/V1/projects/delete-item/" + itemId;
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+          window.location.reload(true);
+        }
+      });
+    }
+
+    function updateProjectStatus(projectId) {
+      console.log("1");
+      let requestButton = jQuery("#requestPriceButton");
+      let requestButtonValue = requestButton.value;
+      let requestButtonClick = requestButton.onclick;
+
+      console.log("2");
+      let url = "/rest/V1/projects/update-project-status/" + projectId;
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        beforeSend: function () {
+          console.log("3");
+          requestButton.prop("value", "Loading...");
+          requestButton.prop("onclick", "");
+        },
+        success: function (data) {
+          console.log(data);
+          window.location.reload(true);
+        },
+        error: function () {
+          requestButton.prop("value", requestButtonValue);
+          requestButton.prop("onclick", requestButtonClick);
+        }
+      });
+    }
+
+  });
+
+</script>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/projects/projectrooms/:id" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="projectRooms"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/user-projects/:userId" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="userProjects"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/name/:name" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="name"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/delete-item/:itemId" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="deleteItem"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/delete-room/:roomId" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="deleteRoom"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/delete-project/:projectId" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="deleteProject"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/add-project-to-cart/:id" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="addSingleProductToCart"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/update-project-status/:id" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="setProjectPendingStatus"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/projects/set-project-status/:id/:status" method="GET">
+        <service class="Mediapark\Projects\Api\ProjectsInterface" method="setProjectStatus"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+</routes>
+

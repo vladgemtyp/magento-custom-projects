@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>
+            List of user's projects
+        </title>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Backend\Block\Template" template="Mediapark_Projects::projects.phtml"/>
+            <uiComponent name="mediapark_projects_project_listing"/>
+        </referenceContainer>
+    </body>
+</page>

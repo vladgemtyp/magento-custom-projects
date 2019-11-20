@@ -1,0 +1,155 @@
+<?php
+/**
+ * The MIT License (MIT)
+ * Copyright (c) 2019
+ * This source file is subject to The MIT License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/MIT
+ */
+
+// Add Some Code Here for design
+use Mediapark\Projects\Block\Index;
+
+?>
+
+<script>
+    console.log("index.phtml loading");
+</script>
+
+<?php
+/** @var Mediapark\Projects\Block\Index $projectBlock */
+$projectBlock = $block->getLayout()->createBlock('Mediapark\Projects\Block\Index');
+?>
+<div>
+    <div class="addNewFormGroup">
+        <form action="/projects/customer/index" method="post">
+            <div class="addNewForm">
+                <div class="addNewFormText"><input name="projectName" type="text" placeholder="New project name"></div>
+                <div class="addNewFormButton"><input class="createNewRoom" type="submit" value="Create new Project">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <table class="greyGridTable">
+        <thead>
+        <tr>
+            <td> Project name</td>
+            <!--				<td> Created </td>-->
+            <td> Items</td>
+            <td> Total ($)</td>
+            <td> Action</td>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($projectBlock->getUserProjects() as $projectItem): ?>
+            <tr>
+                <td>
+                    <a href="<?= $projectBlock->getLinkToProject($projectItem->getData()['project_id']) ?>">
+                        <?= $projectItem->getData()['project_name'] ?>
+                    </a>
+                </td>
+                <td><?= $projectBlock->getNumOfItems($projectItem->getData()['project_rooms']) ?></td>
+                <td><?= $projectBlock->getTotalPrice($projectItem->getData()['project_rooms']) ?></td>
+                <td>
+                    <i class="glyphicon glyphicon-pencil"></i>
+                    <i class="fab fa-magento"></i>
+                    <a href="<?= $projectBlock->getLinkToProject($projectItem->getData()['project_id']) ?>">Edit</a> /
+                    <a class="projects-modal-btn" id="<?= $projectItem->getData()['project_id'] ?>"
+                       onclick="setDeleteProjectId(<?= $projectItem->getData()['project_id'] ?>)">Delete</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <div class="projects-modal">
+        <div class="projects-modal-content">
+            <div style="display: inline">
+                <span class="projects-close-btn">&times;</span>
+            </div>
+            <div style="display: flex;justify-content: center;width: 100%;"><h2>Sure?</h2></div>
+
+            <div style="display: flex;padding-top: 10px;">
+                <input id="projects-yes-button" class="close-btn-no" type="button"
+                       style="flex-grow: 1;background-color: #2789A5;color: white;padding: 10px 20px;margin: 10px;"
+                       value="Yes">
+                <input class="projects-close-btn-no" type="button"
+                       style="flex-grow: 1;background-color: #2789A5;color: white;padding: 10px 20px;margin: 10px;"
+                       value="No">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    require([
+        "jquery"
+    ], function (jQuery) {
+
+        let modal = jQuery(".projects-modal");
+        let closeBtn = jQuery(".projects-close-btn");
+        let closeBtnNo = jQuery(".projects-close-btn-no");
+        let modalBtn = jQuery(".projects-modal-btn");
+        let yesButton = jQuery("#projects-yes-button");
+
+        let deleteProjectId = 0;
+        let deleteRoomId = 0;
+        let currentEvent = '';
+
+
+
+        modalBtn.on("click", function () {
+            modal.show();
+        });
+
+        closeBtn.on("click", function () {
+            modal.removeAttr("style").hide();
+        });
+
+        closeBtnNo.on("click", function () {
+            modal.removeAttr("style").hide();
+        });
+
+        modalBtn.on("click", function () {
+            let id = parseInt(modalBtn.attr("id"));
+            setDeleteProjectId(id);
+        });
+
+        jQuery(window).click(function (e) {
+            if ("." + e.target.className == modal.selector) {
+                modal.removeAttr("style").hide();
+            }
+        });
+
+
+
+
+        yesButton.click(function () {
+            deleteProject(getDeleteProjectId());
+        });
+
+        function setDeleteProjectId(id) {
+            deleteProjectId = id;
+            currentEvent = "item";
+        }
+
+        function getDeleteProjectId() {
+            return deleteProjectId;
+        }
+
+        function deleteProject(projectId) {
+            let url = "/rest/V1/projects/delete-project/" + projectId;
+            jQuery.ajax({
+                type: 'GET',
+                url: url,
+                success: function (data) {
+                    window.location.reload(false);
+                }
+            });
+        }
+    });
+
+
+</script>

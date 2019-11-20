@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Mediapark_Projects_MenuItem::first_level"
+             title="Mediapark projects"
+             module="Mediapark_Projects"
+             sortOrder="9999"
+             resource="Magento_Backend::content"/>
+
+        <add id="Mediapark_Projects_MenuItem::second_level"
+             title="All users projects"
+             module="Mediapark_Projects"
+             sortOrder="0"
+             action="projects/projects/"
+             parent="Mediapark_Projects_MenuItem::first_level"
+             resource="Magento_Backend::content"/>
+    </menu>
+
+</config>

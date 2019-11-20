@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Mediapark\Projects\Api\ProjectsInterface"
+                type="Mediapark\Projects\Model\ProjectsApi"/>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="mediapark_projects_project_listing_data_source" xsi:type="string">Mediapark\Projects\Model\ResourceModel\Project\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Mediapark\Projects\Model\ResourceModel\Project\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mediapark_projects_project</argument>
+            <argument name="resourceModel" xsi:type="string">Mediapark\Projects\Model\ResourceModel\Project</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Mediapark\Projects\Model\ResourceModel\Item\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mediapark_projects_item</argument>
+            <argument name="resourceModel" xsi:type="string">Mediapark\Projects\Model\ResourceModel\Item</argument>
+        </arguments>
+    </virtualType>
+</config>

@@ -1,0 +1,252 @@
+<?php
+/**
+ * The MIT License (MIT)
+ * Copyright (c) 2019
+ * This source file is subject to The MIT License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/MIT
+ */
+/** @var Mediapark\Projects\Block\Adminhtml\SingleProject $projectBlock */
+$projectBlock = $block->getLayout()->CreateBlock('Mediapark\Projects\Block\Adminhtml\SingleProject');
+?>
+<style type="text/css">
+	select[disabled] {
+		color: grey;
+	}
+</style>
+
+<div class="page-main-actions">
+	<div class="page-actions-placeholder"></div>
+	<div class="page-actions" data-ui-id="page-actions-toolbar-content-header">
+		<div class="page-actions-inner" data-title="Antonio Citterio Repos with Panchina">
+			<div class="page-actions-buttons">
+				<button id="back" title="Back" type="button" class="action- scalable back"
+				        onclick="location.href = '<?= $block->getUrl("projects/projects/index"); ?>';"
+				        data-ui-id="back-button">
+					<span>Back</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+<section class="admin__page-section order-view-account-information">
+	<div class="admin__page-section-title">
+		<span class="title">Project &amp; Account Information</span>
+	</div>
+	<div class="admin__page-section-content">
+		<div class="admin__page-section-item order-information">
+			<div class="admin__page-section-item-title">
+                <span class="title">
+                    Project # <?= $projectBlock->getProjectIdFromUrl(); ?>
+                </span>
+			</div>
+			<div class="admin__page-section-item-content">
+				<table class="admin__table-secondary order-information-table">
+					<tbody>
+					<tr>
+						<th>Created Date</th>
+						<td><?= $projectBlock->getProjectData()["created_at"] ?></td>
+					</tr>
+					<tr>
+						<th>Project Status</th>
+						<td><span id="order_status">
+								<a id="status_link"><?= $projectBlock->getProjectData()["status"] ?></a>
+							</span>
+
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="admin__page-section-item order-account-information">
+			<div class="admin__page-section-item-title">
+				<span class="title">Account Information</span>
+				<div class="actions">
+				</div>
+			</div>
+			<div class="admin__page-section-item-content">
+				<table class="admin__table-secondary order-account-information-table">
+					<tbody>
+					<tr>
+						<th>Customer Name</th>
+						<td>
+                            <?= $projectBlock->getCustomerData()->getfirstname()
+                            . " "
+                            . $projectBlock->getCustomerData()->getlastname() ?>
+						</td>
+					</tr>
+					<tr>
+						<th>Email</th>
+						<td><a href="mailto:<?= $projectBlock->getCustomerData()
+                                ->getemail() ?>"><?= $projectBlock->getCustomerData()->getemail() ?></a></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</section>
+<section class="admin__page-section">
+	<div class="admin__page-section-title">
+		<span class="title">Project items</span>
+
+        <?php $href =
+            $block->getBaseUrl() . "/rest/V1/projects/delete-project/" . $projectBlock->getProjectIdFromUrl(); ?>
+		<a style="float: right;" href="<?= $href ?>">Delete project</a>
+	</div>
+	<div class="admin__table-wrapper">
+		<table class="data-table admin__table-primary edit-order-table">
+			<thead>
+			<tr class="headings">
+				<th class="col-product"><span>Product name</span></th>
+				<th class="col-product"><span>Product sku</span></th>
+				<th class="col-product"><span>Product options</span></th>
+				<th class="col-price"><span>Price</span></th>
+				<th class="col-ordered-qty"><span>Qty</span></th>
+				<th class="col-total last"><span>Row Total</span></th>
+			</tr>
+			</thead>
+			<tbody class="even">
+            <?php $itemList = $projectBlock->getItemList() ?>
+            <?php foreach ($itemList as $item): ?>
+				<tr>
+					<td class="col-product">
+						<div id="order_item_1">
+							<div id="order_item_1_title" class="product-title">
+                                <?= $projectBlock->getItemName($item) ?>
+							</div>
+
+						</div>
+					</td>
+					<td class="col-status">
+                        <?php if ($projectBlock->getProductFromItem($item)): ?>
+                            <?= $projectBlock->getProductSkuFromItem($item) ?>
+                        <?php else: ?>
+                            <?= '-' ?>
+                        <?php endif; ?>
+
+					</td>
+					<td class="col-price-original">
+			            <span class="price">
+				            <?php $options = $projectBlock->getItemOptions($item) ?>
+                            <?php foreach ($options as $key => $option): ?>
+					            <div><?= $option ?>:<?= $key ?></div>
+                            <?php endforeach;
+                            if (empty($options)): ?>
+					            -
+                            <?php endif; ?>
+			            </span>
+					</td>
+					<td class="col-price">
+						<div class="price-excl-tax">
+
+							<span class="price">
+                                <?php if ($projectBlock->getProductFromItem($item)): ?>
+	                                $<?= $projectBlock->getItemPrice($item) ?>
+                                <?php else: ?>
+                                    <?= '-' ?>
+                                <?php endif; ?>
+							</span>
+						</div>
+					</td>
+					<td class="col-ordered-qty">
+						<table class="qty-table">
+							<tbody>
+							<tr>
+								<th>Ordered</th>
+								<td><?= $projectBlock->getItemQty($item) ?></td>
+							</tr>
+							</tbody>
+						</table>
+					</td>
+					<td class="col-subtotal">
+						<div class="price-excl-tax">
+
+							<span class="price">
+								<?php if ($projectBlock->getProductFromItem($item)): ?>
+									$<?= $projectBlock->getItemPrice($item) * $projectBlock->getItemQty($item) ?>
+                                <?php else: ?>
+									$<?= '-' ?>
+                                <?php endif; ?>
+							</span>
+						</div>
+					</td>
+				</tr>
+            <?php endforeach; ?>
+
+
+			</tbody>
+		</table>
+	</div>
+</section>
+<script>
+  require([
+    "jquery"
+  ], function ($) {
+
+    console.log("asd");
+    let projectId = <?= $projectBlock->getProjectIdFromUrl();?>;
+    let statusLink = $("#status_link");
+    let arr = [
+      {text: 'Created'},
+      {text: 'Pending'},
+      {text: 'Finished'}
+    ];
+
+    //Create and append select list
+    let selectList = $("<select>").appendTo("#order_status");
+    selectList.hide();
+    selectList.attr("id", "mySelect");
+    $(arr).each(function () {
+      selectList.append($("<option>").attr("value", this.text).text(this.text));
+    });
+
+    let status_link = $("#status_link");
+    console.log("inited status_link");
+    status_link.click(function () {
+      console.log("onclick");
+      showSelectBox();
+    });
+
+    selectList.on('change', function () {
+      console.log("change");
+      hideSelectBox();
+    });
+
+
+    function showSelectBox() {
+      statusLink.hide();
+      selectList.show();
+    }
+
+    function hideSelectBox() {
+      let getUrl = window.location;
+      let baseUrl = getUrl.protocol + "//" + getUrl.host + "/";
+      let url = baseUrl + "/rest/V1/projects/set-project-status/" + projectId + "/" + selectList.val();
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        beforeSend: function () {
+          console.log("ajax url is: " + url);
+          console.log(this.url);
+          selectList.prop("disabled", true);
+        },
+        success: function (data) {
+          console.log("ajax: " + data);
+          statusLink.text(selectList.val());
+          selectList.hide();
+          statusLink.show();
+        },
+        complete: function () {
+          selectList.prop("disabled", false);
+        }
+      });
+
+    }
+
+  });
+
+</script>
